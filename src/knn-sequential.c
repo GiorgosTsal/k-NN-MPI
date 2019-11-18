@@ -3,8 +3,8 @@
 // Points using K nearest neighbour algorithm. 
 
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
 #include "../inc/knn.h"
 
 
@@ -63,6 +63,32 @@ double dist(){
 */
 knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	//// Fill distances of all points from p 
+	 printf("ds");
+	double * distance = (double *) malloc((n*m)*sizeof(double));
+	 
+	double *xRow = (double *)malloc(n * sizeof(double));
+	double *yRow = (double *)malloc(m * sizeof(double));
+	
+	for(int i=0; i<n; i++){
+		for(int j=0; j<d; j++){
+			xRow[i] += (*(X+i*d+j)) * (*(X+i*d+j));
+		}
+	}
+	
+	for(int i=0; i<m; i++){
+		for(int j=0; j<d; j++){
+			yRow[i] += (*(Y+i*d+j)) * (*(Y+i*d+j));
+		}
+	}
+		
+	for(int i=0; i<n; i++){
+		for(int j=0; j<m; j++){
+			*(distance + i*m + j) += xRow[i] + yRow[j];
+			*(distance + i*m + j) = sqrt( *(distance + i*m + j) );
+		}
+	}
+
+	printArray(distance, n, m);
    
 }
 

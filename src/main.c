@@ -5,7 +5,7 @@
 
 
 
-const int n = 10, d = 2, m = 10;
+const int n = 10, d = 2, m = 10, k=2;
 
 
 // Driver code 
@@ -27,8 +27,12 @@ int main()
 	printIndicesArray(idxX, n);
 	printf("\n");
 	printIndicesArray(idxY, m);
+
+	printf("begin \n");
+    knnresult result;
+	result = kNN(X, Y, n, m, d, k);
 	
-	
+	printf("end \n");
    
 
     return 0; 
