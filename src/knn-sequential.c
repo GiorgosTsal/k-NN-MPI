@@ -113,10 +113,21 @@ double kthSmallest(double arr[], int l, int r, int k){
 */
 knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 
-	double * distance = (double *) malloc(m*sizeof(double));
+	double * distance = (double *)malloc(m * n  *sizeof(double));
 	 
-	double *xRow = (double *)malloc(n * sizeof(double));
+	double *xRow = (double *)malloc(m * n  *sizeof(double));
 	double *yRow = (double *)malloc(m * sizeof(double));
+	int *indexes = (int*)malloc(m * n  *sizeof(int));
+	
+
+	for(int i=0; i<m; i++){
+		for(int j=0; j<n; j++){
+			*(indexes+i*n+j)=j;
+			printf("indexes: %d \n", *(indexes+i*n+j));
+		}
+	}
+	
+	
 	
 	for(int i=0; i<n; i++){
 		for(int j=0; j<d; j++){
@@ -134,11 +145,16 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	printArray(yRow, m, 1);
 	for(int i=0; i<n; i++){
 		for(int j=0; j<m; j++){
-			*(distance + i*m + j) += sqrt(*(xRow +i) + *(yRow +i));
+			*(distance + i*m + j) += xRow[i] + yRow[j];
+			*(distance + i*m + j) = sqrt( *(distance + i*m + j) );
+			printf("Distances1: %d %f \n",i*m + j,*(distance + i*m + j));
 		}
+		
 	}
+	//	After that, only keep the k shortest distances and the indices of the corresponding points (using k-select like in the
+	//	previous assignment?).
 	printf("Distances: \n");
-	printArray(distance, m, 1);
+	printArray(distance, m, n);
 
 	double *kNeighbours = (double *)malloc(k * sizeof(double));
 	for(int i=1; i<=k; i++){
@@ -147,6 +163,11 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 		printf("\n");
 		//na to valo na gyrnaei k ta indices tous-kamia domi gia to dist??
 	}
+	
+	
+		
+	
+
 	
    
 }
