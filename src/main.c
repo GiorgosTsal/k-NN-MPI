@@ -5,6 +5,7 @@
 
 
 
+
 const int n = 3, d = 4, m = 3, k=2;
 
 
