@@ -141,7 +141,7 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 			printf("indexes1: %d \n", *(indexes+i*n+j));
 		}
 	}
-	
+	/*
 	for(int i=0; i<n; i++){
 		for(int j=0; j<d; j++){
 			*(xRow +i) += (*(X+i*d+j)) * (*(X+i*d+j)); //sum(X.^2,2) 
@@ -165,7 +165,23 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 		}
 		
 	}
+	*/
+	// Calculates euclidean distance.
+	for(int i=0;i<n;i++){
+		for(int j=0;j<m;j++){
+			double dist=0;
+			for(int k=0;k<d;k++){
+				
+				dist+=(X[i*d+k]-Y[j*d+k])*(X[i*d+k]-Y[j*d+k]);
+				
+				
+			}
+			distance[i*m+j]=sqrt(dist);
+		
+		}
 	
+	
+	}
 	
 	
 	//	After that, only keep the k shortest distances and the indices of the corresponding points (using k-select like in the
