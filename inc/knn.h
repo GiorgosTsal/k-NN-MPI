@@ -26,6 +26,6 @@ void populateArray(double *array, int n, int d);
 void printArray(double *array, int n, int d);
 void printIndicesArray(int * array, int size);
 int * indexArray(int size);
-int partition(double arr[], int l, int r);
-double kthSmallest(double arr[], int l, int r, int k);
+int partition(double *arr,int *idx, int l, int r);
+double kthSmallest(double *arr,int *idx,int l, int r, int k);
 void swap(double *p, double *q);
