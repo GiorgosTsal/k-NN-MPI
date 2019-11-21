@@ -18,7 +18,7 @@ void populateArray(double *array, int n, int d){
 			}
 	  }
 }
-////Helper to visualize results
+//Helper to visualize results
 void printArray(double *array, int n, int d){
     for (int i = 0; i < n; ++i)
     {
@@ -96,7 +96,7 @@ int partition(double *arr, int l, int r){
 	return i;
 }
 
-// This function returns k'th smallest
+// This function returns k'th smallest with index
 // element in arr[l..r] using QuickSort
 // based method.  ASSUMPTION: ALL ELEMENTS
 // IN ARR[] ARE DISTINCT
@@ -175,51 +175,6 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	double * distance = (double *)malloc(m * n  *sizeof(double));
 	int *indexes = (int*)malloc(m * n  *sizeof(int));
 	
-	//double * Tdistance = (double *)malloc(m * n  *sizeof(double));
-	//double *xRow = (double *)malloc(m * n  *sizeof(double));
-	//double *yRow = (double *)malloc(m * sizeof(double));
-	
-
-	
-	
-    /*
-	for(int i=0; i<m; i++){
-		for(int j=0; j<n; j++){
-			*(indexes+i*n+j)=j;
-			printf("indexes1: %d \n", *(indexes+i*n+j));
-		}
-	}
-	
-	for(int i=0; i<n; i++){
-		for(int j=0; j<d; j++){
-			*(xRow +i) += (*(X+i*d+j)) * (*(X+i*d+j)); //sum(X.^2,2) 
-		}
-	}
-	printf("xRow: \n");
-	printArray(xRow, n, 1);
-	for(int i=0; i<m; i++){
-		for(int j=0; j<d; j++){
-			*(yRow +i) += (*(Y+i*d+j)) * (*(Y+i*d+j)); //sum(Y.^2,2)
-		}
-	}
-	printf("yRow: \n");
-	printArray(yRow, m, 1);
-	
-	for(int i=0; i<n; i++){
-		for(int j=0; j<m; j++){
-			*(distance + i*m + j) += xRow[i] + yRow[j];
-			*(distance + i*m + j) = sqrt( *(distance + i*m + j) );
-			printf("Distances1: %d %f \n",i*m + j,*(distance + i*m + j));
-		}
-		
-	}
-	*/
-	
-	
-	
-	
-	
-	
 	knnres.m=m;
 	knnres.k=k;
 	
@@ -228,39 +183,24 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 		for(int j=0;j<n;j++){
 			double dist=0;
 			for(int k=0;k<d;k++){
-				
-				dist+=(X[j*d+k]-Y[i*d+k])*(X[j*d+k]-Y[i*d+k]);
-				
-				
+				dist+=(X[j*d+k]-Y[i*d+k])*(X[j*d+k]-Y[i*d+k]);		
 			}
 			distance[i*n+j]=sqrt(dist);
-		
 		}
-	
-	
 	}
 	
-	
-	//	After that, only keep the k shortest distances and the indices of the corresponding points (using k-select like in the
-	//	previous assignment?).
-
-	
 	printf("\n=== Distances === \n" );
-	
 	for(int i=0; i<m; i++){
 		for(int j=0; j<n; j++){
 			printf("%f " , *(distance + i*n + j));
 		}
 	printf("\n" );
 	}
-	
 	printf("\n" );
-	//double *kNeighbours = (double *)malloc(k * sizeof(double));
-	
-	
+
+		
 	double * tempDis = (double *)malloc(m *sizeof(double));
-	
-	
+
 	//Calculates the minimum distance of each point of y from X dataset
 	for(int i=0;i<m;i++){
 		tempDis[i]=kthSmallest(&distance[i*n], 0, n-1, 1);
@@ -268,9 +208,7 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 		indexes[i]=i;
 	}
 	
-	
 	free(distance);
-	
 	
 	knnres.ndist=(double *)malloc(k * sizeof(double));
 	knnres.nidx=(int *)malloc(k * sizeof(int));
@@ -282,23 +220,11 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 		knnres.nidx[i]=indexes[i];
 		printf("oi %d neibhor ine: %lf ",i , knnres.ndist[i] );
 		printf("To id ine: %d ", knnres.nidx[i] );
-		//loipon eho teleiosei nomizo me to distances alla des to k esu ligo genika dn eimai 100% sigouros oti einai sosto
-		//i kthSmallest pou eho gyrnaei double ta k mikrotera distances edo. autos thelei na gurname k ta index
-		//https://www.geeksforgeeks.org/how-to-return-multiple-values-from-a-function-in-c-or-cpp/
-		//me tis texnikes edo logika pame sto na epistrefei domi i an eheis esu kamia kaluteri lusi ennoeite
-		//kai nomizo etsi teleionei to seiriako alla ksanaleo dn eimai sigouros oti ta apotelesmata pou vgazo einai sosta
-		//genika an einai check mia ton tropo se sxesi me ton typo D pou dinei gia na vroume tis apostaseis k an pisteueis oti einai sostos apla krata ta indexes k teleiose to seiriako
-		//*(kNeighbours + i) = kthSmallest(distance, indexes, 0, m-1, i); //edo allaksa tin kthSmallest(prosthesa os parametro to indexes-pou tha einai ta index tou pinaka distance 
-																		//k ekana k mia swap gia integers pou tha xreiastei sigoura an pame me auti ti logiki)
-		
 		printf("\n");
-		//na to valo na gyrnaei k ta indices tous-kamia domi gia to dist??
 	}
 	free(tempDis);
 	free(indexes);
-	return knnres;
-
-	
+	return knnres;	
 }
 
 

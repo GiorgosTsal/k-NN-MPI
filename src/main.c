@@ -5,7 +5,7 @@
 
 
 
-const int n = 15, d = 4, m = 6, k=3;
+const int n = 4, d = 2, m = 4, k=2;
 
 
 // Driver code 
@@ -24,14 +24,7 @@ int main()
 	printf("\n");
 	populateArray(Y, m, d);
 	printArray(Y, m, d);
-
-	int *idxX = (int *)malloc(n *sizeof(int));
-	int *idxY = (int *)malloc(m *sizeof(int));
-	idxX = indexArray(n);
-	idxY = indexArray(m);
-	
 	printf("\n");
-
 
 	printf("begin \n");
 	double  total_time;
@@ -39,12 +32,18 @@ int main()
 	gettimeofday (&start, NULL);
     knnresult result;
 	result = kNN(X, Y, n, m, d, k);
+	printf("Time taken by kNN function: : %f sec\n",total_time);
 	gettimeofday (&end, NULL);
 	total_time = (double)((end.tv_usec - start.tv_usec)/1.0e6 + end.tv_sec - start.tv_sec);
-	printf("Time taken by kNN function: : %f sec\n",total_time);
+	for (int i = 0; i < k; i++)
+	{
+		printf("\nKNN result=> nidx = %d", *(result.nidx+i));
+		printf("\nKNN result=> nidx = %lf", *(result.ndist+i));
+	}
+//	printf("\nKNN result=> nidx = %d \nKNN result=> ndist = %f \nKNN result=> m = %d \nKNN result=> k = %d", *result.nidx, result.ndist, result.m, result.k);
 	
 
-	printf("end \n");
+	printf("\n ====end===== \n");
    
     return 0; 
 } 
