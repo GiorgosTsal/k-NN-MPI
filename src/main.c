@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "../inc/knn.h"
+#include"sys/time.h"
 
 
 
-
-const int n = 3, d = 4, m = 3, k=3;
+const int n = 15, d = 4, m = 6, k=3;
 
 
 // Driver code 
