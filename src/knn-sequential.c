@@ -30,21 +30,6 @@ void printArray(double *array, int n, int d){
 		}
 	}
 }
-//Print Indices of an array
-void printIndicesArray(int *array, int size){
-    for (int i = 0; i < size; ++i)
-    {
-			printf("%d\n", *(array + i));
-    }
-}
-//Indexes an array
-int * indexArray(int size){
-	int * idxOfarray = (int *)malloc(size *sizeof(int));
-	for (int i = 0; i < size; i++) {
-			*(idxOfarray + i) = i;
-	}
-	return idxOfarray;
-}
 
 //custom swap for doubles
 void swap_d(double *p, double *q){
