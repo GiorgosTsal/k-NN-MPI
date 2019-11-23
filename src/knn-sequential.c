@@ -10,7 +10,6 @@
 #include <cblas.h>
 
 
-
 //Populate array/dataset with random double values
 void populateArray(double *array, int n, int d){
 	  for (int i = 0; i < n; i++) {
@@ -31,7 +30,6 @@ void printArray(double *array, int n, int d){
 		}
 	}
 }
-
 //custom swap for doubles
 void swap_d(double *p, double *q){
     double tmp;
@@ -66,7 +64,6 @@ int partitionWithIndex(double *arr, int *idx,int l, int r){
 	swap_i(idx+i, idx +r);
 	return i;
 }
-
 int partition(double *arr, int l, int r){
 	double x = arr[r];
 	int i = l;
@@ -113,7 +110,6 @@ double kthSmallestWithIndex(double *arr, int *idx,int l, int r, int k){
     // elements in array
     return INT_MAX;
 } 
-
 
 double kthSmallest(double *arr, int l, int r, int k){
     // If k is smaller than number of
@@ -228,6 +224,27 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	knnres.m=m;
 	knnres.k=k;
 	
+	
+	//test calculation
+	double * dist = (double *)malloc(m * n  *sizeof(double));
+	for (int j = 0; j < m; j++ ){
+		for (int i = 0; i < n; i++ ){
+			double dista = 0;
+			for (int l = 0; l < d; l++){
+			dista += ( X[l*n+i] - Y[l*m+j] ) * ( X[l*n+i] - Y[l*m+j] );
+			}
+			*(dist+i*n+j) = sqrt(dista);
+		}	
+	}
+	for (int j = 0; j < m; j++ ){
+			for (int i = 0; i < n; i++ ){
+			printf("to dianysmaa distances einai: %lf \n", *(dist +i*n+j));
+		}
+		printf("\n");
+	}
+	
+	
+	
 	// Calculates euclidean distance.
 	for(int i=0;i<m;i++){
 		for(int j=0;j<n;j++){
@@ -238,27 +255,24 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 			distance[i*n+j]=sqrt(dist);
 		}
 	}
-	
-	printf("\n=== Distances === \n" );
-	for(int i=0; i<m; i++){
-		for(int j=0; j<n; j++){
-			printf("%f " , *(distance + i*n + j));
-		}
-	printf("\n" );
-	}
-	printf("\n" );
 
+	
+	
 		
 	double * tempDis = (double *)malloc(m *sizeof(double));
-
-	//Calculates the minimum distance of each point of y from X dataset
+	//Calculates the minimum distance of each point of Y from X dataset
 	for(int i=0;i<m;i++){
-		tempDis[i]=kthSmallest(&distance[i*n], 0, n-1, 1);
-		printf("tempDis[ %d ] =  %lf ",i,tempDis[i]);
+		printf("makis is: %d \n", distance[i*n]); 
+		*(tempDis + i)=kthSmallest(&distance[i*n], 0, n-1, 1);
+		if (*(tempDis + i) == 0)
+		{
+			*(tempDis + i)=kthSmallest(&distance[i*n], 0, n-1, 2);
+		}
+		printf("tempDis[ %d ] =  %lf \n",i,tempDis[i]);
 		indexes[i]=i;
 	}
 	
-	free(distance);
+	free(dist);
 	
 	knnres.ndist=(double *)malloc(k * sizeof(double));
 	knnres.nidx=(int *)malloc(k * sizeof(int));
