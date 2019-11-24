@@ -7,7 +7,7 @@
 #include <math.h>
 #include <limits.h>
 #include "../inc/knn.h"
-#include <cblas.h>
+//#include <cblas.h>
 
 
 
@@ -43,7 +43,6 @@ void swap_d(double *p, double *q){
 //custom swap for doubles
 void swap_i(int *p, int *q){
     double tmp;
-
     tmp = *p;
     *p = *q;
     *q = tmp;
@@ -57,6 +56,7 @@ int partitionWithIndex(double *arr, int *idx,int l, int r){
 	int i = l;
 	for (int j = l; j <= r - 1; j++) {
 		if (*(arr +j) <= x) {
+			
 			swap_d(arr+i, arr +j); 
 			swap_i(idx+i, idx +j); 
 			i++;
@@ -232,13 +232,14 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	for(int i=0;i<m;i++){
 		for(int j=0;j<n;j++){
 			double dist=0;
-			for(int k=0;k<d;k++){
-				dist+=(X[j*d+k]-Y[i*d+k])*(X[j*d+k]-Y[i*d+k]);		
+			for(int s=0;s<d;s++){
+				dist+=(X[j*d+s]-Y[i*d+s])*(X[j*d+s]-Y[i*d+s]);		
 			}
+			indexes[i*n+j]=j;
 			distance[i*n+j]=sqrt(dist);
 		}
 	}
-	
+	/*
 	printf("\n=== Distances === \n" );
 	for(int i=0; i<m; i++){
 		for(int j=0; j<n; j++){
@@ -247,19 +248,32 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	printf("\n" );
 	}
 	printf("\n" );
-
+*/
 		
-	double * tempDis = (double *)malloc(m *sizeof(double));
-
+	//double * tempDis = (double *)malloc(m *sizeof(double));
+	knnres.ndist=(double *)malloc(m*k * sizeof(double));
+	knnres.nidx=(int *)malloc(m*k * sizeof(int));
 	//Calculates the minimum distance of each point of y from X dataset
+	
+	
 	for(int i=0;i<m;i++){
-		tempDis[i]=kthSmallest(&distance[i*n], 0, n-1, 1);
-		printf("tempDis[ %d ] =  %lf ",i,tempDis[i]);
-		indexes[i]=i;
+		printf("\n Gia i= %d : \n",i);
+		for(int j=0;j<k;j++){
+			
+			knnres.ndist[i*k+j]=kthSmallestWithIndex(&distance[i*n], &indexes[i*n],0, n-1, j+1);
+			
+			knnres.nidx[i*k+j]=indexes[i*k+j];
+			
+			printf("O geitonas %d exei apostasi: %lf \n",knnres.nidx[i*k+j],knnres.ndist[i*k+j]);
+			
+	//	printf("tempDis[ %d ] =  %lf ",i,tempDis[i]);
+		
+		}
 	}
 	
 	free(distance);
-	
+	free(indexes);
+	/*
 	knnres.ndist=(double *)malloc(k * sizeof(double));
 	knnres.nidx=(int *)malloc(k * sizeof(int));
 	
@@ -273,7 +287,7 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 		printf("\n");
 	}
 	free(tempDis);
-	free(indexes);
+	*/
 	return knnres;	
 }
 

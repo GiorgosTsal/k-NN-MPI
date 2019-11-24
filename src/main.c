@@ -35,11 +35,7 @@ int main()
 	printf("Time taken by kNN function: : %f sec\n",total_time);
 	gettimeofday (&end, NULL);
 	total_time = (double)((end.tv_usec - start.tv_usec)/1.0e6 + end.tv_sec - start.tv_sec);
-	for (int i = 0; i < k; i++)
-	{
-		printf("\nKNN result=> nidx = %d", *(result.nidx+i));
-		printf("\nKNN result=> nidx = %lf", *(result.ndist+i));
-	}
+	
 //	printf("\nKNN result=> nidx = %d \nKNN result=> ndist = %f \nKNN result=> m = %d \nKNN result=> k = %d", *result.nidx, result.ndist, result.m, result.k);
 	
 
