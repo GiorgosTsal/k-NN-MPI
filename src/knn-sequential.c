@@ -63,7 +63,7 @@ int partitionWithIndex(double *arr, int *idx,int l, int r){
 	}
 	swap_d(arr + i, arr + r); 
 	swap_i(idx+i, idx +r);
-	return i;
+	return i+1;
 }
 
 int partition(double *arr, int l, int r){
@@ -254,6 +254,7 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 			
 		}
 	}
+	
 	
 	free(distance);
 	free(indexes);
