@@ -25,10 +25,9 @@ void printArray(double *array, int n, int d){
     {
        // cout << i << ": ";
         for (int j = 0; j < d; ++j){
-            printf("%f\n", *(array + i*d + j));
-			putchar('\n');
-			fflush(stdout);
+            printf("%f ", *(array + i*d + j));
 		}
+		printf("\n");
 	}
 }
 
@@ -239,23 +238,10 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 			distance[i*n+j]=sqrt(dist);
 		}
 	}
-	/*
-	printf("\n=== Distances === \n" );
-	for(int i=0; i<m; i++){
-		for(int j=0; j<n; j++){
-			printf("%f " , *(distance + i*n + j));
-		}
-	printf("\n" );
-	}
-	printf("\n" );
-*/
-		
-	//double * tempDis = (double *)malloc(m *sizeof(double));
+	
 	knnres.ndist=(double *)malloc(m*k * sizeof(double));
 	knnres.nidx=(int *)malloc(m*k * sizeof(int));
 	//Calculates the minimum distance of each point of y from X dataset
-	
-	
 	for(int i=0;i<m;i++){
 		printf("\n Gia i= %d : \n",i);
 		for(int j=0;j<k;j++){
@@ -266,28 +252,11 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 			
 			printf("O geitonas %d exei apostasi: %lf \n",knnres.nidx[i*k+j],knnres.ndist[i*k+j]);
 			
-	//	printf("tempDis[ %d ] =  %lf ",i,tempDis[i]);
-		
 		}
 	}
 	
 	free(distance);
 	free(indexes);
-	/*
-	knnres.ndist=(double *)malloc(k * sizeof(double));
-	knnres.nidx=(int *)malloc(k * sizeof(int));
-	
-	//Calculates k nearest neighbors
-	for(int i=0; i<k; i++){
-		
-		knnres.ndist[i]=kthSmallestWithIndex(tempDis, indexes,0, m-1, i+1);
-		knnres.nidx[i]=indexes[i];
-		printf("oi %d neibhor ine: %lf ",i , knnres.ndist[i] );
-		printf("To id ine: %d ", knnres.nidx[i] );
-		printf("\n");
-	}
-	free(tempDis);
-	*/
 	return knnres;	
 }
 
