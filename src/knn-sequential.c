@@ -63,7 +63,7 @@ int partitionWithIndex(double *arr, int *idx,int l, int r){
 	}
 	swap_d(arr + i, arr + r); 
 	swap_i(idx+i, idx +r);
-	return i+1;
+	return i;
 }
 
 int partition(double *arr, int l, int r){
@@ -236,6 +236,7 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 			}
 			indexes[i*n+j]=j;
 			distance[i*n+j]=sqrt(dist);
+			printf("Distance of Y[ %d] and X[ %d] is: %lf \n",i,j,distance[i*n+j]);
 		}
 	}
 	
@@ -245,10 +246,10 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	for(int i=0;i<m;i++){
 		printf("\n Gia i= %d : \n",i);
 		for(int j=0;j<k;j++){
-			
+			printf("MPAINEI");
 			knnres.ndist[i*k+j]=kthSmallestWithIndex(&distance[i*n], &indexes[i*n],0, n-1, j+1);
 			
-			knnres.nidx[i*k+j]=indexes[i*k+j];
+			knnres.nidx[i*k+j]=indexes[i*n+j];
 			
 			printf("O geitonas %d exei apostasi: %lf \n",knnres.nidx[i*k+j],knnres.ndist[i*k+j]);
 			
