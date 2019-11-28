@@ -14,18 +14,20 @@
 #include <assert.h>
 #include "knnring.h"
 #include "mpi.h"
-
+#include "sys/time.h"
 #include "tester_helper.h"
 
 
 int main(int argc, char *argv[])
 {
 
+  struct timeval start, end;
+  gettimeofday (&start, NULL);
   MPI_Init(&argc, &argv);       // initialize MPI
 
   int p, id;                    // # processess and PID
-  int n=1423;                    // # corpus elements per process
-  int d=37;                      // dimensions
+  int n=423;                    // # corpus elements per process
+  int d=7;                      // dimensions
   int k=13;                     // # neighbors
 
   double * corpus;              // will hold data
@@ -145,6 +147,10 @@ int main(int argc, char *argv[])
   
   MPI_Finalize();               // clean-up
   
+
+  gettimeofday (&end, NULL);
+  double total_time = (double)((end.tv_usec - start.tv_usec)/1.0e6 + end.tv_sec - start.tv_sec);
+  printf("Total time taken by program: : %f sec\n",total_time);
   return 0;
   
 }

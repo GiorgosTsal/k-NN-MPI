@@ -30,11 +30,12 @@ int main()
 	double  total_time;
 	struct timeval start, end;
 	gettimeofday (&start, NULL);
-    knnresult result;
+	knnresult result;
 	result = kNN(X, Y, n, m, d, k);
-	printf("Time taken by kNN function: : %f sec\n",total_time);
+	
 	gettimeofday (&end, NULL);
 	total_time = (double)((end.tv_usec - start.tv_usec)/1.0e6 + end.tv_sec - start.tv_sec);
+	printf("Time taken by kNN function: : %f sec\n",total_time);
 	
 //	printf("\nKNN result=> nidx = %d \nKNN result=> ndist = %f \nKNN result=> m = %d \nKNN result=> k = %d", *result.nidx, result.ndist, result.m, result.k);
 	

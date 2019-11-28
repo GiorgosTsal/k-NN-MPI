@@ -1,13 +1,14 @@
-
 // C program to find groups of unknown 
-// Points using K nearest neighbour algorithm. 
+// Points using K nearest neighbour algorithm and MPI lib for communication. 
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <limits.h>
 #include "../inc/knn.h"
-//#include <cblas.h>
+#include <mpi.h>
+#include <string.h>
+
 
 
 
@@ -63,7 +64,7 @@ int partitionWithIndex(double *arr, int *idx,int l, int r){
 	}
 	swap_d(arr + i, arr + r); 
 	swap_i(idx+i, idx +r);
-	return i+1;
+	return i;
 }
 
 int partition(double *arr, int l, int r){
@@ -150,7 +151,6 @@ double kthSmallest(double *arr, int l, int r, int k){
 	\param	m		Number of query points		[scalar]
 	\param	d		Number of dimensions		[scalar]
 	\param	k		Number of neighbors			[scalar]
-
 	\return The kNN result
 */
 knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
@@ -221,9 +221,6 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 		//The size of the first dimention of matrix C; if you are passing a matrix C[m][n], the value should be m.
 		
 	
-	
-	
-	
 	knnres.m=m;
 	knnres.k=k;
 	
@@ -243,27 +240,140 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	knnres.nidx=(int *)malloc(m*k * sizeof(int));
 	//Calculates the minimum distance of each point of y from X dataset
 	for(int i=0;i<m;i++){
-		printf("\n Gia i= %d : \n",i);
 		for(int j=0;j<k;j++){
-			
 			knnres.ndist[i*k+j]=kthSmallestWithIndex(&distance[i*n], &indexes[i*n],0, n-1, j+1);
-			
-			knnres.nidx[i*k+j]=indexes[i*k+j];
-			
-			printf("O geitonas %d exei apostasi: %lf \n",knnres.nidx[i*k+j],knnres.ndist[i*k+j]);
-			
+			knnres.nidx[i*k+j]=indexes[i*n+j];
 		}
 	}
-	
 	
 	free(distance);
 	free(indexes);
 	return knnres;	
 }
 
-knnresult distrAllkNN(double *X,int n,int d,int k){
-	printf("Distribute all...\n");
+//! Compute distributed all-kNN of points in X
+/*!
+	\param	X	Data points				[n-by-d]
+	\param	n	Number of data points	[scalar]
+	\param	d	Number of dimensions	[scalar]
+	\param	k	Number of neighbors		[scalar]
+  
+	\return	The kNN result
+*/
+knnresult distrAllkNN(double * X, int n, int d, int k){
+
+	// Find out rank, size
+	int process_rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &process_rank); //the current ID of the running process
+	int pr;
+	MPI_Comm_size(MPI_COMM_WORLD, &pr); //total number of running MPI processes
+	//Set MPI communication tag and status.
+    int tag = 0; //suggested 0
+    MPI_Status status;
+	
+	// which process to send?
+	int from , to;
+	if(process_rank == 0)
+		from = pr - 1;
+	else
+		from = process_rank - 1;
+	if(process_rank == pr - 1)
+		to = 0;
+	else
+		to = process_rank + 1;
+
+
+	int branks = process_rank;
+
+
+	// Generate ranks matrix
+	int* process_ranks = calloc(n, sizeof(int));
+	for(int i = 0; i < n; i++){
+		// 0 => last n points, 1 => [0, n], 2 => [n+1, 2n] ktlp 
+		if(process_rank != 0)
+			*(process_ranks +i) = (process_rank - 1) * n + i;
+		else
+			*(process_ranks +i) = (pr-1) * n + i;
+	}
+	// run the kNN code to get the first result
+	knnresult res = kNN(X, X, n, n, d, k);
+
+
+	// map ranks in order to send only the corpus
+	for(int i = 0; i < n * k; i++){
+		*(res.nidx + i) = *(process_ranks + res.nidx[i]);
+	}
+
+	knnresult tempRes;
+
+	double * Y = (double *)malloc(n * d  *sizeof(double));
+	memcpy(Y, X, n * d * sizeof(double));
+	double * tempY = (double *)malloc(n * d  *sizeof(double));
+
+	int idxRes = 0;
+	int idxNres = 0;
+	double* tempResDis = (double *)malloc(n * k  *sizeof(double));
+	int* tempResIDs = (int *)malloc(n * k  *sizeof(int));
+
+	for(int i = 0; i < pr-1; i++){
+
+		// if even, first send and then receive
+		if(process_rank % 2 == 0){
+			
+			MPI_Send(Y, n*d, MPI_DOUBLE, to, tag, MPI_COMM_WORLD);
+
+			MPI_Recv(Y, n*d, MPI_DOUBLE, from, tag, MPI_COMM_WORLD, &status);
+			
+		}else{//first recv and then send
+
+			MPI_Recv(tempY, n*d, MPI_DOUBLE, from, tag, MPI_COMM_WORLD, &status);
+
+			MPI_Send(Y, n*d, MPI_DOUBLE, to, tag, MPI_COMM_WORLD);
+			// Write tempY the originl
+			memcpy(Y, tempY, n * d * sizeof(double));
+		}
+
+		branks = branks - 1;
+		if(branks < 0)
+			branks = pr-1;
+		for(int j = 0; j < n; j++){
+			if(branks != 0)
+				*(process_ranks + j) = (branks - 1) * n + j;
+			else
+				*(process_ranks + j) = (pr-1) * n + j;
+		}
+
+		tempRes = kNN(Y, X, n, n, d, k);
+
+		// map ranks back 
+		for(int i = 0; i < n * k; i++){
+			tempRes.nidx[i] = *(process_ranks + tempRes.nidx[i] );
+		}	
+
+		memcpy(tempResDis, res.ndist, n * k * sizeof(double));
+		memcpy(tempResIDs, res.nidx, n * k * sizeof(int));
+
+		// loop through query points for merging
+		for(int s = 0; s < n; s++){
+			idxRes = 0;
+			idxNres = 0;
+
+			// loop through k neibhors to find if there is a shorter dist
+			for(int j = 0; j < k; j++){
+
+				if(*(tempResDis + s*k + idxRes) < *(tempRes.ndist + s*k + idxNres)){
+					*(res.ndist + s*k + j) = *(tempResDis + s*k + idxRes);
+					res.nidx[s*k + j] = *(tempResIDs + s*k + idxRes);
+					idxRes++;
+				}else{
+					*(res.ndist + s*k + j) = *(tempResDis + s*k + idxNres);
+					res.nidx[s*k + j] = tempRes.nidx[s*k + idxNres];
+					idxNres++;
+				}
+			}
+		}
+	}
+
+	return res;
 }
-
-
 
