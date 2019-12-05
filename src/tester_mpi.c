@@ -26,9 +26,9 @@ int main(int argc, char *argv[])
   MPI_Init(&argc, &argv);       // initialize MPI
 
   int p, id;                    // # processess and PID
-  int n=423;                    // # corpus elements per process
-  int d=7;                      // dimensions
-  int k=13;                     // # neighbors
+  int n=18;                    // # corpus elements per process
+  int d=3;                      // dimensions
+  int k=3;                     // # neighbors
 
   double * corpus;              // will hold data
   
