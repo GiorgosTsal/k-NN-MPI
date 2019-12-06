@@ -7,7 +7,7 @@
 #include <math.h>
 #include <limits.h>
 #include "../inc/knn.h"
-//#include <cblas.h>
+#include <cblas.h>   //sudo apt-get install libatlas-base-dev 
 
 
 
@@ -30,7 +30,6 @@ void printArray(double *array, int n, int d){
 		printf("\n");
 	}
 }
-
 //custom swap for doubles
 void swap_d(double *p, double *q){
     double tmp;
@@ -65,7 +64,6 @@ int partitionWithIndex(double *arr, int *idx,int l, int r){
 	swap_i(idx+i, idx +r);
 	return i;
 }
-
 int partition(double *arr, int l, int r){
 	double x = arr[r];
 	int i = l;
@@ -80,7 +78,6 @@ int partition(double *arr, int l, int r){
 	
 	return i;
 }
-
 // This function returns k'th smallest with index
 // element in arr[l..r] using QuickSort
 // based method.  ASSUMPTION: ALL ELEMENTS
@@ -112,8 +109,6 @@ double kthSmallestWithIndex(double *arr, int *idx,int l, int r, int k){
     // elements in array
     return INT_MAX;
 } 
-
-
 double kthSmallest(double *arr, int l, int r, int k){
     // If k is smaller than number of
     // elements in array
@@ -142,6 +137,53 @@ double kthSmallest(double *arr, int l, int r, int k){
     return INT_MAX;
 } 
 
+//function to calc euclidean distances with cblas lib based on matlab given type: sqrt(sum(X.^2,2) -2* X*Y.' + sum(Y.^2,2).') <= (tautotita)
+double* calcDistanceBlas(double * X, double * Y, int n, int m, int d, int k){
+		double count = 0;
+		double alpha= -2;
+		double beta = 0;
+		double * distance = (double *)malloc(m * n *sizeof(double));
+		double * Xnrm = (double *)malloc(n *sizeof(double)); // L2 norm of X
+		double * Ynrm = (double *)malloc(m *sizeof(double)); // L2 norm of Y
+		double * bothMatrix = (double *)malloc(m * n *sizeof(double));
+		
+		// dgemm routine, calculates the product of double precision matrices (-2*X*Y')
+		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, n, m, d, alpha, X, d, Y, d, beta, bothMatrix, m);
+
+		
+		//	double cblas_dnrm2(const int __N, const double *__X, const int __incX);
+		
+		//	N		Length of vector X.
+		//	X		Vector X.
+		//	incX 	Stride within X. For example, if incX is 7, every 7th element is used.
+		
+		for(int i = 0; i < n; i++){
+			count = cblas_dnrm2(d, X+i*d, 1); //cblas_dnrm2:	Computes the L2 norm (Euclidian length) of a vector (double precision).
+			*(Xnrm +i) = count * count;
+		}
+		for(int i = 0; i < m; i++){
+			count = cblas_dnrm2(d, Y+i*d, 1); //cblas_dnrm2:	Computes the L2 norm (Euclidian length) of a vector (double precision).
+			*(Ynrm +i) = count * count; 
+		}
+
+		for (int i=0; i<n; i++){
+			for(int j=0; j<m; j++){
+				*(bothMatrix + i*m+j) += *(Xnrm +i) + *(Ynrm +j);
+			}
+		}
+
+		for(int i = 0; i < n*m; i++){
+			*(distance +i) = sqrt(*(bothMatrix +i));
+		}
+
+		// Allocate
+		free(Xnrm);
+		free(Ynrm);
+		free(bothMatrix);
+
+		return distance;
+}
+
 //! Compute k nearest neighbors of each point in X [n-by-d]
 /*!
 	\param	X		Corpus data points			[n-by-d]
@@ -157,88 +199,37 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 
 	knnresult knnres;
 	double * distance = (double *)malloc(m * n  *sizeof(double));
-	int *indexes = (int*)malloc(m * n  *sizeof(int));
-	
-	//Declaration
-	//void cblas_dgemm(const enum CBLAS_ORDER __Order, const enum CBLAS_TRANSPOSE __TransA, const enum CBLAS_TRANSPOSE __TransB, const int __M, const int __N, const int __K, const double __alpha, const double *__A, const int __lda, const double *__B, const int __ldb, const double __beta, double *__C, const int __ldc);
-	
-	//This function multiplies A * B and multiplies the resulting matrix by alpha. It then multiplies matrix C by beta. It stores the sum of these two products in matrix C.
-
-	//Thus, it calculates either
-
-	//C←αAB + βC
-
-	//or
-
-	//C←αBA + βC
-
-	//with optional use of transposed forms of A, B, or both.
-	
-	
-	//Parameters
-
-	//Order
-
-		//Specifies row-major (C) or column-major (Fortran) data ordering.
-	//TransA
-
-		//Specifies whether to transpose matrix A.
-	//TransB
-
-		//Specifies whether to transpose matrix B.
-	//M
-
-		//Number of rows in matrices A and C.
-	//N
-
-		//Number of columns in matrices B and C.
-	//K
-
-		//Number of columns in matrix A; number of rows in matrix B.
-	//alpha
-
-		//Scaling factor for the product of matrices A and B.
-	//A
-
-		//Matrix A.
-	//lda
-
-		//The size of the first dimention of matrix A; if you are passing a matrix A[m][n], the value should be m.
-	//B
-
-		//Matrix B.
-	//ldb
-
-		//The size of the first dimention of matrix B; if you are passing a matrix B[m][n], the value should be m.
-	//beta
-
-		//Scaling factor for matrix C.
-	//C
-
-		//Matrix C.
-	//ldc
-
-		//The size of the first dimention of matrix C; if you are passing a matrix C[m][n], the value should be m.
-		
-	
-	
-	
+	double * distancetmp = (double *)malloc(m * n  *sizeof(double));
+	int *indexes = (int*)malloc(m * n  *sizeof(int));	
+	double alpha= 1;
+	double beta = 0;
 	
 	knnres.m=m;
 	knnres.k=k;
 	
-	// Calculates euclidean distance.
+	
 	for(int i=0;i<m;i++){
 		for(int j=0;j<n;j++){
-			double dist=0;
-			for(int s=0;s<d;s++){
-				dist+=(X[j*d+s]-Y[i*d+s])*(X[j*d+s]-Y[i*d+s]);		
-			}
 			indexes[i*n+j]=j;
-			distance[i*n+j]=sqrt(dist);
-			printf("Distance of Y[ %d] and X[ %d] is: %lf \n",i,j,distance[i*n+j]);
 		}
 	}
+	
+	double * unitMatrix = (double *)malloc(n * n  *sizeof(double)); //size n is the n × n square matrix
+	//populate unit matrix
+	for(int i = 0; i < n;i++) {
+		for(int j = 0; j < n;j++) {
+			if(i == j) {
+				*(unitMatrix + i*n + i) = 1; //ones on the main diagonal
+			} 
+		}
+	}
+	
+	double* tempDistance = calcDistanceBlas(X, Y, n, m, d, k);
+	cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, n, alpha, tempDistance, m, unitMatrix, n, beta, distance, n);
+
+	// Allocate
+	free(unitMatrix);
+	free(tempDistance);
 	
 	knnres.ndist=(double *)malloc(m*k * sizeof(double));
 	knnres.nidx=(int *)malloc(m*k * sizeof(int));
@@ -246,7 +237,7 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	for(int i=0;i<m;i++){
 		printf("\n Gia i= %d : \n",i);
 		for(int j=0;j<k;j++){
-			printf("MPAINEI");
+			printf("MPAINEI:	");
 			knnres.ndist[i*k+j]=kthSmallestWithIndex(&distance[i*n], &indexes[i*n],0, n-1, j+1);
 			
 			knnres.nidx[i*k+j]=indexes[i*n+j];

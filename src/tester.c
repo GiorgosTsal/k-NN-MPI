@@ -18,10 +18,10 @@
 int main()
 {
 
-  int n=897;                    // corpus
-  int m=762;                    // query 
-  int d=7;                      // dimensions
-  int k=13;                     // # neighbors
+  int n=12235;                    // corpus
+  int m=456;                    // query 
+  int d=11;                      // dimensions
+  int k=3;                     // # neighbors
 
   double  * corpus = (double * ) malloc( n*d * sizeof(double) );
   double  * query  = (double * ) malloc( m*d * sizeof(double) );
@@ -32,7 +32,15 @@ int main()
   for (int i=0;i<m*d;i++)
     query[i]  = ( (double) (rand()) ) / (double) RAND_MAX;
 
+	double  total_time;
+	struct timeval start, end;
+	gettimeofday (&start, NULL);
+
   knnresult knnres = kNN( corpus, query, n, m, d, k );
+	
+	gettimeofday (&end, NULL);
+	total_time = (double)((end.tv_usec - start.tv_usec)/1.0e6 + end.tv_sec - start.tv_sec);
+	printf("Time taken by kNN function: : %f sec\n",total_time);
 
   int isValidC = validateResultColMajor( knnres, corpus, query, n, m, d, k );
 
