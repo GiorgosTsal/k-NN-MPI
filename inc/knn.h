@@ -47,3 +47,4 @@ double kthSmallestWithIndex(double *arr,int *idx,int l, int r, int k);
 double kthSmallest(double *arr, int l, int r, int k);
 void swap_d(double *p, double *q);
 void swap_i(int *p, int *q);
+double * calcDistanceBlas(double * X, double * Y, int n, int m, int d, int k);

@@ -138,7 +138,7 @@ double kthSmallest(double *arr, int l, int r, int k){
 } 
 
 //function to calc euclidean distances with cblas lib based on matlab given type: sqrt(sum(X.^2,2) -2* X*Y.' + sum(Y.^2,2).') <= (tautotita)
-double* calcDistanceBlas(double * X, double * Y, int n, int m, int d, int k){
+double * calcDistanceBlas(double * X, double * Y, int n, int m, int d, int k){
 		double count = 0;
 		double alpha= -2;
 		double beta = 0;
@@ -176,7 +176,7 @@ double* calcDistanceBlas(double * X, double * Y, int n, int m, int d, int k){
 			*(distance +i) = sqrt(*(bothMatrix +i));
 		}
 
-		// Allocate
+		// delete matrix
 		free(Xnrm);
 		free(Ynrm);
 		free(bothMatrix);
