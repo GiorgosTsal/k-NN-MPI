@@ -205,7 +205,13 @@ knnresult kNN(double* X, double* Y, int n, int m, int d, int k){
 	
 	double* tempDistance = calcDistanceBlas(X, Y, n, m, d, k);
 	cblas_dgemm(CblasRowMajor, CblasTrans, CblasNoTrans, m, n, n, alpha, tempDistance, m, unitMatrix, n, beta, distance, n);
-	
+	for(int i=0; i<m; i++){
+      for(int j=0; j<n; j++){
+        if(*(distance+i*n+j) < 0.00000001)               
+          *(distance+i*n+j) = 0;
+        *(distance+i*n+j) = sqrt(*(distance+i*n+j));
+      }
+  }
 	// Allocate
 	free(unitMatrix);
 	free(tempDistance);
